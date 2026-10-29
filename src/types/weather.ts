@@ -1,47 +1,61 @@
-/**
- * Contratos de domínio compartilhados do Weather App.
- *
- * Decisão de arquitetura: as temperaturas são sempre armazenadas em Celsius
- * internamente e convertidas apenas na camada de apresentação. Assim, a troca
- * de unidade (C/F) nunca dispara um novo request.
- */
-
+/** Unidade usada para apresentar temperaturas. */
 export type Unit = 'celsius' | 'fahrenheit';
 
-/** Resultado da API de geocoding (uma cidade). */
 export interface City {
-  id: number;
+  /** Identificador da localidade, quando fornecido pela geocodificação. */
+  id?: number;
+  /** Nome da cidade. */
   name: string;
+  /** Região administrativa usada para distinguir cidades homônimas. */
+  region?: string;
+  /** País da localidade. */
   country: string;
-  /** Estado/região, quando disponível (ajuda a desambiguar homônimos). */
-  admin1?: string;
+  /** Código ISO do país, quando fornecido pela fonte. */
+  countryCode?: string;
+  /** Latitude usada na consulta meteorológica. */
   latitude: number;
+  /** Longitude usada na consulta meteorológica. */
   longitude: number;
+  /** Fuso horário da localidade, quando fornecido pela fonte. */
+  timezone?: string;
 }
 
-/** Condições atuais. Temperatura sempre em °C. */
 export interface CurrentWeather {
-  temperature: number;
-  weatherCode: number;
-  humidity: number;
-  windSpeed: number;
-  pressure: number;
-  precipitation: number;
-  time: string;
+  /** Temperatura atual em Celsius; null quando indisponível. */
+  temperatureC: number | null;
+  /** Código WMO da condição atual; null quando indisponível. */
+  weatherCode: number | null;
+  /** Umidade relativa em porcentagem; null quando indisponível. */
+  humidityPercent: number | null;
+  /** Velocidade do vento em km/h; null quando indisponível. */
+  windSpeedKmh: number | null;
+  /** Precipitação em milímetros; null quando indisponível. */
+  precipitationMm: number | null;
+  /** Pressão atmosférica em hPa; ausente ou null quando indisponível. */
+  pressureHpa?: number | null;
 }
 
-/** Um dia da previsão. Temperaturas sempre em °C. */
 export interface ForecastDay {
+  /** Data local no formato YYYY-MM-DD. */
   date: string;
-  min: number;
-  max: number;
-  weatherCode: number;
-  precipitationProbability: number;
+  /** Temperatura mínima em Celsius; null quando indisponível. */
+  minTemperatureC: number | null;
+  /** Temperatura máxima em Celsius; null quando indisponível. */
+  maxTemperatureC: number | null;
+  /** Código WMO da condição diária; null quando indisponível. */
+  weatherCode: number | null;
 }
 
-/** Agregado entregue à UI: cidade + clima atual + 5 dias de previsão. */
 export interface WeatherData {
+  /** Localidade à qual os dados meteorológicos pertencem. */
   city: City;
+  /** Condições meteorológicas atuais. */
   current: CurrentWeather;
-  forecast: ForecastDay[];
+  /** Previsão diária em ordem cronológica. */
+  forecastDays: ForecastDay[];
+}
+
+export interface WeatherService {
+  searchLocations(query: string, signal?: AbortSignal): Promise<City[]>;
+  getWeather(location: City, signal?: AbortSignal): Promise<WeatherData>;
 }

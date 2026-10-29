@@ -1,9 +1,15 @@
-/**
- * Mapeia o `weather_code` (WMO) da Open-Meteo para um rótulo em pt-BR e um
- * ícone (emoji). Mantém o domínio de apresentação isolado e testável.
- *
- * Referência: https://open-meteo.com/en/docs (WMO Weather interpretation codes)
- */
+import {
+  Cloud,
+  CloudDrizzle,
+  CloudFog,
+  CloudLightning,
+  CloudRain,
+  CloudSnow,
+  CloudSun,
+  type LucideIcon,
+  Sun,
+  Thermometer,
+} from 'lucide-react';
 
 interface WeatherInfo {
   label: string;
@@ -41,16 +47,33 @@ const WEATHER_CODE_MAP: Record<number, WeatherInfo> = {
   99: { label: 'Trovoadas com granizo forte', icon: '⛈️' },
 };
 
-const UNKNOWN: WeatherInfo = { label: 'Condição desconhecida', icon: '🌡️' };
+const UNKNOWN: WeatherInfo = { label: 'Condição indisponível', icon: '🌡️' };
 
-export function getWeatherInfo(code: number): WeatherInfo {
-  return WEATHER_CODE_MAP[code] ?? UNKNOWN;
+const ICON_GROUPS: { codes: number[]; icon: LucideIcon }[] = [
+  { codes: [0], icon: Sun },
+  { codes: [1, 2], icon: CloudSun },
+  { codes: [3], icon: Cloud },
+  { codes: [45, 48], icon: CloudFog },
+  { codes: [51, 53, 55], icon: CloudDrizzle },
+  { codes: [56, 57, 61, 63, 65, 66, 67, 80, 81, 82], icon: CloudRain },
+  { codes: [71, 73, 75, 77, 85, 86], icon: CloudSnow },
+  { codes: [95, 96, 99], icon: CloudLightning },
+];
+
+export function getWeatherIconComponent(code: number | null): LucideIcon {
+  return (
+    ICON_GROUPS.find((group) => code !== null && group.codes.includes(code))?.icon ?? Thermometer
+  );
 }
 
-export function getWeatherLabel(code: number): string {
+export function getWeatherInfo(code: number | null): WeatherInfo {
+  return code === null ? UNKNOWN : (WEATHER_CODE_MAP[code] ?? UNKNOWN);
+}
+
+export function getWeatherLabel(code: number | null): string {
   return getWeatherInfo(code).label;
 }
 
-export function getWeatherIcon(code: number): string {
+export function getWeatherIcon(code: number | null): string {
   return getWeatherInfo(code).icon;
 }

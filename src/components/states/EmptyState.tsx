@@ -1,17 +1,8 @@
-interface EmptyStateProps {
-  title: string;
-  hint?: string;
-}
-
-/** Estado vazio (nenhuma busca feita ou nenhum resultado). */
-export default function EmptyState({ title, hint }: EmptyStateProps) {
+export default function EmptyState() {
   return (
-    <div className="flex flex-col items-center gap-2 py-16 text-center">
-      <span aria-hidden="true" className="text-4xl">
-        🌍
-      </span>
-      <p className="text-white/80">{title}</p>
-      {hint && <p className="text-sm text-white/50">{hint}</p>}
+    <div className="flex min-h-48 flex-col items-center justify-center gap-2 px-4 py-8 text-center text-white">
+      <h2 className="break-words text-xl font-semibold">Nenhuma cidade encontrada</h2>
+      <p className="break-words text-white/70">Confira a grafia ou tente buscar outra cidade.</p>
     </div>
   );
 }
